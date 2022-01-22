@@ -4,7 +4,7 @@ import axios from "axios";
 import DayList from "./DayList";
 import Appointment from "./Appointment";
 import "components/Application.scss";
-import { getAppointmentsForDay, getInterview } from "helpers/selectors";
+import { getAppointmentsForDay, getInterview, getInterviewersForDay } from "helpers/selectors";
 
 
 export default function Application(props) {
@@ -15,17 +15,51 @@ export default function Application(props) {
     interviewers: {}
   });
 
+  function bookInterview(id, interview) {
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview }
+    };
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+
+    setState({ ...state, appointments });
+    
+    return axios.put(`/api/appointments/${id}`, { interview })
+      .then(res => {
+        setState({ ...state, appointments })
+        console.log("hi");
+    })
+    
+  }
+
+  function cancelInterview(id) {
+    const appointment = { ...state.appointments[id], interview: null };
+    const appointments = { ...state.appointments, [id]: appointment };
+    setState({ ...state, appointments });
+    return axios.delete(`/api/appointments/${id}`)
+      .then(res => {
+        setState({ ...state, appointments });
+        return state
+      });
+  }
+
   const dailyAppointments = getAppointmentsForDay(state, state.day);
+  const dailyInterviewers = getInterviewersForDay(state, state.day);
 
   const schedule = dailyAppointments.map((apt) => {
     const interview = getInterview(state, apt.interview);
-
     return (
       <Appointment
       key={apt.id}
       id={apt.id}
       time={apt.time}
       interview={interview}
+      interviewers={dailyInterviewers}
+      bookInterview={bookInterview}
+      cancelInterview={cancelInterview}  
     />
     ) 
   })
@@ -42,7 +76,7 @@ export default function Application(props) {
         ...prev,
         days: all[0].data,
         appointments: all[1].data,
-        interviews: all[2].data}))
+        interviewers: all[2].data}))
     })
   },[])
 
