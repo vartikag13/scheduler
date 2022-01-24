@@ -30,14 +30,14 @@ export default function Appointment(props) {
           interviewer
         };
         transition(SAVING);
-        props.bookInterview(props.id, interview)
+        props.bookInterview(props.id, interview, mode)
             .then(transition(SHOW))
             .catch(error => transition(ERROR_SAVE, true));
     }
     
     function destroy (){
           transition(DELETING, true);
-          props.cancelInterview(props.id)
+          props.cancelInterview(props.id, props.interview, mode)
               .then(transition(EMPTY))
               .catch(error => transition(ERROR_DELETE, true));
     
@@ -49,7 +49,7 @@ export default function Appointment(props) {
             {/* {props.interview ? <Show student={props.interview.student} interviewer={props.interview.interviewer} /> : <Empty />} */}
             {mode === EMPTY && <Empty onAdd={ () => transition(CREATE)} />}
 
-            {mode === SHOW && (
+            {mode === SHOW  && (
             <Show
                 student={props.interview.student}
                     interviewer={props.interview.interviewer}
