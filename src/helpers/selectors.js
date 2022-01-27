@@ -59,8 +59,9 @@ export function getInterview(state, interview) {
   }
 
   const interviewer = state.interviewers[interview.interviewer];
-    if (interviewer) {
-        return {student: interview.student, interviewer};
+  if (interviewer) {
+    const interviewToReturn = { student: interview.student, interviewer }
+        return interviewToReturn;
     } else {
         return null;
     }
